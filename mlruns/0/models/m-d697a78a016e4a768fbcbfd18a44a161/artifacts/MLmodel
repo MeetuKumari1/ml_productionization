@@ -1,0 +1,23 @@
+artifact_path: file:c:/Users/Coditas-Admin/Documents/ml_productionization/mlruns/0/models/m-d697a78a016e4a768fbcbfd18a44a161/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.7
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.9.0
+model_id: m-d697a78a016e4a768fbcbfd18a44a161
+model_size_bytes: 265947
+model_uuid: m-d697a78a016e4a768fbcbfd18a44a161
+prompts: null
+run_id: ce24123d003241a0ab0e075e150acc97
+utc_time_created: '2026-02-02 13:27:40.360393'

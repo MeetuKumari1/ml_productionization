@@ -1,0 +1,9 @@
+flask
+joblib
+mlflow
+numpy
+pandas
+scipy
+scikit-learn
+streamlit
+apache-airflow

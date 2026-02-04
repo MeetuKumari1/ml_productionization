@@ -1,0 +1,9 @@
+{
+  "model_name": "LogisticRegression",
+  "accuracy": 0.48507462686567165,
+  "features": [
+    "company",
+    "name",
+    "age"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "artifact_path": "artifacts\\hotel_recommender.joblib",
+  "num_users": 1310,
+  "num_hotels": 9
+}
