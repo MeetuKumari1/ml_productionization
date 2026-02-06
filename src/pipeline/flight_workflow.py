@@ -60,7 +60,11 @@ def train_and_select_model(
     test_size: float = 0.2,
     random_state: int = 42,
 ) -> dict:
-    mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "file:./mlruns"))
+    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
+    if not tracking_uri:
+        db_path = Path("mlflow.db").resolve()
+        tracking_uri = f"sqlite:///{db_path.as_posix()}"
+    mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(os.environ.get("MLFLOW_EXPERIMENT", "flight-price-regression"))
 
     df = load_data(data_path)

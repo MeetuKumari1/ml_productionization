@@ -47,7 +47,11 @@ def _rmse(y_true, y_pred):
 
 
 def main():
-    mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "file:./mlruns"))
+    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
+    if not tracking_uri:
+        db_path = Path("mlflow.db").resolve()
+        tracking_uri = f"sqlite:///{db_path.as_posix()}"
+    mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(os.environ.get("MLFLOW_EXPERIMENT", "flight-price-regression"))
 
     df = _load_data()
@@ -63,7 +67,7 @@ def main():
     models = {
         "LinearRegression": LinearRegression(),
         "Ridge": Ridge(alpha=1.0),
-        "Lasso": Lasso(alpha=0.01),
+        "Lasso": Lasso(alpha=0.01, max_iter=10000, tol=1e-4),
         "RandomForest": RandomForestRegressor(
             n_estimators=300, max_depth=None, random_state=42, n_jobs=-1
         ),
