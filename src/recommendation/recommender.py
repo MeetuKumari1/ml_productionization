@@ -1,5 +1,10 @@
+"""Hotel recommender utilities based on item-item similarity."""
+
+from __future__ import annotations
+
 import json
 from pathlib import Path
+from typing import Any
 
 import joblib
 import numpy as np
@@ -11,6 +16,8 @@ USERS_PATH = Path("travel_capstone/users.csv")
 ARTIFACT_PATH = Path("artifacts/hotel_recommender.joblib")
 METADATA_PATH = Path("artifacts/hotel_recommender_metadata.json")
 
+Recommender = dict[str, Any]
+
 
 def load_hotels(data_path: str | Path = HOTELS_PATH) -> pd.DataFrame:
     path = Path(data_path)
@@ -19,7 +26,7 @@ def load_hotels(data_path: str | Path = HOTELS_PATH) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def build_recommender(df: pd.DataFrame) -> dict:
+def build_recommender(df: pd.DataFrame) -> Recommender:
     if df[["userCode", "name"]].isna().any().any():
         raise ValueError("Missing values in userCode/name.")
 
@@ -27,9 +34,11 @@ def build_recommender(df: pd.DataFrame) -> dict:
     user_ids = interactions.index.to_list()
     hotel_names = interactions.columns.to_list()
 
+    # Compute item-item similarity based on booking interactions.
     item_matrix = interactions.T.values
     item_similarity = cosine_similarity(item_matrix)
 
+    # Aggregate popularity and pricing for fallback recommendations.
     hotel_stats = (
         df.groupby(["name", "place"], as_index=False)
         .agg(bookings=("travelCode", "count"), avg_price=("price", "mean"))
@@ -45,7 +54,7 @@ def build_recommender(df: pd.DataFrame) -> dict:
     }
 
 
-def save_recommender(recommender: dict) -> dict:
+def save_recommender(recommender: Recommender) -> dict:
     ARTIFACT_PATH.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(recommender, ARTIFACT_PATH)
 
@@ -64,7 +73,7 @@ def train_recommender(data_path: str | Path = HOTELS_PATH) -> dict:
     return save_recommender(recommender)
 
 
-def load_recommender() -> dict:
+def load_recommender() -> Recommender:
     if not ARTIFACT_PATH.exists():
         raise FileNotFoundError(
             f"Recommender artifact not found at {ARTIFACT_PATH}. "
@@ -74,7 +83,7 @@ def load_recommender() -> dict:
 
 
 def recommend_for_user(
-    recommender: dict,
+    recommender: Recommender,
     user_code: int,
     top_n: int = 5,
 ) -> pd.DataFrame:

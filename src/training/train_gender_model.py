@@ -1,3 +1,7 @@
+"""Train and persist the user gender classification model."""
+
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
@@ -8,12 +12,12 @@ import mlflow.sklearn
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 DATA_PATH = Path("travel_capstone/users.csv")
 MODEL_PATH = Path("artifacts/user_gender_model.joblib")
@@ -23,7 +27,7 @@ FEATURE_COLUMNS = ["company", "name", "age"]
 TARGET_COLUMN = "gender"
 
 
-def _load_data():
+def _load_data() -> pd.DataFrame:
     if not DATA_PATH.exists():
         raise FileNotFoundError(
             f"Dataset not found at {DATA_PATH}. "
@@ -32,7 +36,7 @@ def _load_data():
     return pd.read_csv(DATA_PATH)
 
 
-def _build_preprocess():
+def _build_preprocess() -> ColumnTransformer:
     return ColumnTransformer(
         transformers=[
             ("num", StandardScaler(), ["age"]),
@@ -42,12 +46,16 @@ def _build_preprocess():
     )
 
 
-def main():
+def _get_tracking_uri() -> str:
     tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
     if not tracking_uri:
         db_path = Path("mlflow.db").resolve()
         tracking_uri = f"sqlite:///{db_path.as_posix()}"
-    mlflow.set_tracking_uri(tracking_uri)
+    return tracking_uri
+
+
+def main() -> None:
+    mlflow.set_tracking_uri(_get_tracking_uri())
     mlflow.set_experiment(os.environ.get("MLFLOW_EXPERIMENT", "user-gender-classification"))
 
     df = _load_data()

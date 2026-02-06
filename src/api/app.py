@@ -1,6 +1,11 @@
+"""Flask API for flight price and gender prediction models."""
+
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 import joblib
 import pandas as pd
@@ -17,37 +22,19 @@ GENDER_FEATURE_COLUMNS = ["company", "name", "age"]
 app = Flask(__name__)
 
 
-def _load_flight_model():
-    if not FLIGHT_MODEL_PATH.exists():
-        raise FileNotFoundError(
-            f"Model not found at {FLIGHT_MODEL_PATH}. "
-            "Run src/training/train_model.py to create it."
-        )
-    return joblib.load(FLIGHT_MODEL_PATH)
+def _load_model(model_path: Path, hint: str) -> Any:
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found at {model_path}. {hint}")
+    return joblib.load(model_path)
 
 
-def _load_flight_metadata():
-    if FLIGHT_METADATA_PATH.exists():
-        return json.loads(FLIGHT_METADATA_PATH.read_text(encoding="utf-8"))
-    return {}
+def _load_metadata(metadata_path: Path) -> dict:
+    if not metadata_path.exists():
+        return {}
+    return json.loads(metadata_path.read_text(encoding="utf-8"))
 
 
-def _load_gender_model():
-    if not GENDER_MODEL_PATH.exists():
-        raise FileNotFoundError(
-            f"Model not found at {GENDER_MODEL_PATH}. "
-            "Run src/training/train_gender_model.py to create it."
-        )
-    return joblib.load(GENDER_MODEL_PATH)
-
-
-def _load_gender_metadata():
-    if GENDER_METADATA_PATH.exists():
-        return json.loads(GENDER_METADATA_PATH.read_text(encoding="utf-8"))
-    return {}
-
-
-def _validate_flight_payload(payload):
+def _normalize_instances(payload: Any) -> list[dict]:
     if isinstance(payload, dict) and "instances" in payload:
         instances = payload.get("instances")
     else:
@@ -56,48 +43,37 @@ def _validate_flight_payload(payload):
     if not isinstance(instances, list) or not instances:
         raise ValueError("Payload must be an object or a non-empty instances list.")
 
-    cleaned = []
+    cleaned: list[dict] = []
     for idx, item in enumerate(instances):
         if not isinstance(item, dict):
             raise ValueError(f"Instance at index {idx} must be an object.")
-        missing = [c for c in FLIGHT_FEATURE_COLUMNS if c not in item]
-        if missing:
-            raise ValueError(f"Missing fields in instance {idx}: {missing}")
         cleaned.append(item)
-
-    df = pd.DataFrame(cleaned, columns=FLIGHT_FEATURE_COLUMNS)
-    df["time"] = pd.to_numeric(df["time"], errors="raise")
-    df["distance"] = pd.to_numeric(df["distance"], errors="raise")
-    return df
+    return cleaned
 
 
-def _validate_gender_payload(payload):
-    if isinstance(payload, dict) and "instances" in payload:
-        instances = payload.get("instances")
-    else:
-        instances = [payload]
+def _validate_payload(
+    *,
+    payload: Any,
+    required_columns: list[str],
+    numeric_columns: list[str],
+) -> pd.DataFrame:
+    instances = _normalize_instances(payload)
 
-    if not isinstance(instances, list) or not instances:
-        raise ValueError("Payload must be an object or a non-empty instances list.")
-
-    cleaned = []
     for idx, item in enumerate(instances):
-        if not isinstance(item, dict):
-            raise ValueError(f"Instance at index {idx} must be an object.")
-        missing = [c for c in GENDER_FEATURE_COLUMNS if c not in item]
+        missing = [column for column in required_columns if column not in item]
         if missing:
             raise ValueError(f"Missing fields in instance {idx}: {missing}")
-        cleaned.append(item)
 
-    df = pd.DataFrame(cleaned, columns=GENDER_FEATURE_COLUMNS)
-    df["age"] = pd.to_numeric(df["age"], errors="raise")
+    df = pd.DataFrame(instances, columns=required_columns)
+    for column in numeric_columns:
+        df[column] = pd.to_numeric(df[column], errors="raise")
     return df
 
 
 @app.get("/health")
 def health():
-    metadata = _load_flight_metadata()
-    gender_meta = _load_gender_metadata()
+    metadata = _load_metadata(FLIGHT_METADATA_PATH)
+    gender_meta = _load_metadata(GENDER_METADATA_PATH)
     return jsonify(
         {
             "status": "ok",
@@ -115,8 +91,15 @@ def health():
 def predict():
     try:
         payload = request.get_json(force=True)
-        df = _validate_flight_payload(payload)
-        model = _load_flight_model()
+        df = _validate_payload(
+            payload=payload,
+            required_columns=FLIGHT_FEATURE_COLUMNS,
+            numeric_columns=["time", "distance"],
+        )
+        model = _load_model(
+            FLIGHT_MODEL_PATH,
+            "Run src/training/train_model.py to create it.",
+        )
         preds = model.predict(df).tolist()
         return jsonify({"predictions": preds})
     except Exception as exc:
@@ -127,8 +110,15 @@ def predict():
 def predict_gender():
     try:
         payload = request.get_json(force=True)
-        df = _validate_gender_payload(payload)
-        model = _load_gender_model()
+        df = _validate_payload(
+            payload=payload,
+            required_columns=GENDER_FEATURE_COLUMNS,
+            numeric_columns=["age"],
+        )
+        model = _load_model(
+            GENDER_MODEL_PATH,
+            "Run src/training/train_gender_model.py to create it.",
+        )
         preds = model.predict(df).tolist()
         return jsonify({"predictions": preds})
     except Exception as exc:

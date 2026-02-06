@@ -1,3 +1,7 @@
+"""Train and persist the flight price regression model."""
+
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
@@ -23,7 +27,7 @@ FEATURE_COLUMNS = ["from", "to", "flightType", "agency", "time", "distance"]
 TARGET_COLUMN = "price"
 
 
-def _load_data():
+def _load_data() -> pd.DataFrame:
     if not DATA_PATH.exists():
         raise FileNotFoundError(
             f"Dataset not found at {DATA_PATH}. "
@@ -33,7 +37,7 @@ def _load_data():
     return df
 
 
-def _build_preprocess():
+def _build_preprocess() -> ColumnTransformer:
     return ColumnTransformer(
         transformers=[
             ("num", StandardScaler(), ["time", "distance"]),
@@ -42,24 +46,30 @@ def _build_preprocess():
     )
 
 
-def _rmse(y_true, y_pred):
+def _rmse(y_true: pd.Series, y_pred: np.ndarray) -> float:
     return float(np.sqrt(mean_squared_error(y_true, y_pred)))
 
 
-def main():
+def _get_tracking_uri() -> str:
     tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
     if not tracking_uri:
         db_path = Path("mlflow.db").resolve()
         tracking_uri = f"sqlite:///{db_path.as_posix()}"
-    mlflow.set_tracking_uri(tracking_uri)
+    return tracking_uri
+
+
+def main() -> None:
+    mlflow.set_tracking_uri(_get_tracking_uri())
     mlflow.set_experiment(os.environ.get("MLFLOW_EXPERIMENT", "flight-price-regression"))
 
     df = _load_data()
     X = df[FEATURE_COLUMNS]
     y = df[TARGET_COLUMN]
 
+    test_size = 0.2
+    random_state = 42
     X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=test_size, random_state=random_state
     )
 
     preprocess = _build_preprocess()
@@ -86,7 +96,7 @@ def main():
             scores[name] = rmse
 
             mlflow.log_param("model_name", name)
-            mlflow.log_param("test_size", 0.2)
+            mlflow.log_param("test_size", test_size)
             mlflow.log_metric("rmse", rmse)
 
     best_model_name = min(scores, key=scores.get)

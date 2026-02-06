@@ -1,6 +1,11 @@
+"""Airflow-friendly training workflow for flight price regression."""
+
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 import mlflow
 import mlflow.sklearn
@@ -50,7 +55,7 @@ def _build_preprocess() -> ColumnTransformer:
     )
 
 
-def _rmse(y_true, y_pred) -> float:
+def _rmse(y_true: pd.Series, y_pred: np.ndarray) -> float:
     return float(np.sqrt(mean_squared_error(y_true, y_pred)))
 
 
@@ -59,11 +64,13 @@ def train_and_select_model(
     artifacts_dir: str,
     test_size: float = 0.2,
     random_state: int = 42,
-) -> dict:
+) -> dict[str, Any]:
+    """Train multiple models, select the best RMSE, and persist artifacts."""
     tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
     if not tracking_uri:
         db_path = Path("mlflow.db").resolve()
         tracking_uri = f"sqlite:///{db_path.as_posix()}"
+    # Use MLflow to track experiment runs from Airflow.
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(os.environ.get("MLFLOW_EXPERIMENT", "flight-price-regression"))
 

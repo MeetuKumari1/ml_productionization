@@ -1,9 +1,9 @@
-# from recommendation.recommender import train_recommender
-from recommender import train_recommender
+"""CLI entrypoint to train and persist the hotel recommender."""
+
+from src.recommendation.recommender import train_recommender
 
 
-
-def main():
+def main() -> None:
     metadata = train_recommender()
     print("Recommender trained and saved.")
     print(metadata)
