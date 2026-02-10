@@ -22,6 +22,7 @@ Each component has a dedicated README/user guide:
 - Kubernetes: `k8s/README.md`
 - Streamlit: `docs/streamlit_app.md`
 - Jenkins: `jenkins/README.md`
+- MLOps workflow (with screenshots): `docs/mlops_workflow.md`
 
 ## Data Setup
 

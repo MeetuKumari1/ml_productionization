@@ -70,7 +70,7 @@ def train_and_select_model(
     if not tracking_uri:
         db_path = Path("mlflow.db").resolve()
         tracking_uri = f"sqlite:///{db_path.as_posix()}"
-    # Use MLflow to track experiment runs from Airflow.
+        # Use MLflow to track experiment runs from Airflow, default location is in the root of the project.
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(os.environ.get("MLFLOW_EXPERIMENT", "flight-price-regression"))
 

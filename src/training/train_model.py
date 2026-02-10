@@ -79,10 +79,18 @@ def main() -> None:
         "Ridge": Ridge(alpha=1.0),
         "Lasso": Lasso(alpha=0.01, max_iter=10000, tol=1e-4),
         "RandomForest": RandomForestRegressor(
-            n_estimators=300, max_depth=None, random_state=42, n_jobs=-1
+            n_estimators=120,
+            max_depth=18,
+            min_samples_split=4,
+            min_samples_leaf=2,
+            random_state=42,
+            n_jobs=-1,
         ),
         "GradientBoosting": GradientBoostingRegressor(
-            n_estimators=300, learning_rate=0.05, max_depth=3, random_state=42
+            n_estimators=150,
+            learning_rate=0.05,
+            max_depth=3,
+            random_state=42,
         ),
     }
 

@@ -22,6 +22,20 @@ GENDER_FEATURE_COLUMNS = ["company", "name", "age"]
 app = Flask(__name__)
 
 
+@app.get("/")
+def index():
+    return jsonify(
+        {
+            "message": "ML Productionization API",
+            "endpoints": {
+                "health": "/health",
+                "predict_flight_price": "/predict",
+                "predict_gender": "/predict_gender",
+            },
+        }
+    )
+
+
 def _load_model(model_path: Path, hint: str) -> Any:
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found at {model_path}. {hint}")
