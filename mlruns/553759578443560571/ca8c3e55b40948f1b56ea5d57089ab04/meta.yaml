@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Coditas-Admin/Documents/ml_productionization/mlruns/553759578443560571/ca8c3e55b40948f1b56ea5d57089ab04/artifacts
+end_time: 1770306821997
+entry_point_name: ''
+experiment_id: '553759578443560571'
+lifecycle_stage: active
+run_id: ca8c3e55b40948f1b56ea5d57089ab04
+run_name: GradientBoosting
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770306777824
+status: 3
+tags: []
+user_id: Coditas-Admin

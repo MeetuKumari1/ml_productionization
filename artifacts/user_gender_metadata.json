@@ -1,17 +1,9 @@
 {
-  "model_name": "LinearSVC",
-  "accuracy": 0.5410447761194029,
+  "model_name": "LogisticRegression",
+  "accuracy": 0.48507462686567165,
   "features": [
-    "age",
-    "name_length",
-    "vowel_ratio",
     "company",
-    "first_char",
-    "last_char",
-    "last_2",
-    "last_3",
-    "first_token",
-    "last_token",
-    "name"
+    "name",
+    "age"
   ]
 }

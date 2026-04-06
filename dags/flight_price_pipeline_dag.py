@@ -1,15 +1,19 @@
+"""Airflow DAG to validate data and train flight price model."""
+
 from datetime import datetime
-from pathlib import Path
 import os
+from pathlib import Path
 import sys
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+try:
+    from airflow.providers.standard.operators.python import PythonOperator
+except ImportError:  # Airflow 2.x compatibility
+    from airflow.operators.python import PythonOperator
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-SRC_DIR = BASE_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.append(str(SRC_DIR))
+if str(BASE_DIR) not in sys.path:
+    sys.path.append(str(BASE_DIR))
 
 from src.pipeline.flight_workflow import load_data, train_and_select_model, validate_data
 

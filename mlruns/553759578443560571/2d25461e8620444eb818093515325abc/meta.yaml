@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Coditas-Admin/Documents/ml_productionization/mlruns/553759578443560571/2d25461e8620444eb818093515325abc/artifacts
+end_time: 1770306625761
+entry_point_name: ''
+experiment_id: '553759578443560571'
+lifecycle_stage: active
+run_id: 2d25461e8620444eb818093515325abc
+run_name: Ridge
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770306625422
+status: 3
+tags: []
+user_id: Coditas-Admin

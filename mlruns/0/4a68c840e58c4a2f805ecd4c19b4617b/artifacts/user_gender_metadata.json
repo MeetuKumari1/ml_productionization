@@ -1,9 +1,0 @@
-{
-  "model_name": "SGDClassifier",
-  "accuracy": 0.5074626865671642,
-  "features": [
-    "company",
-    "name",
-    "age"
-  ]
-}

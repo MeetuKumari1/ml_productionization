@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Coditas-Admin/Documents/ml_productionization/mlruns/553759578443560571/71a96c42afe647d597292f35c8535fbe/artifacts
+end_time: 1770306625414
+entry_point_name: ''
+experiment_id: '553759578443560571'
+lifecycle_stage: active
+run_id: 71a96c42afe647d597292f35c8535fbe
+run_name: LinearRegression
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770306624968
+status: 3
+tags: []
+user_id: Coditas-Admin

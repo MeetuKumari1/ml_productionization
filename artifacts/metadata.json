@@ -1,0 +1,13 @@
+{
+  "model_name": "RandomForest",
+  "rmse": 6.724183539060421e-12,
+  "features": [
+    "from",
+    "to",
+    "flightType",
+    "agency",
+    "time",
+    "distance"
+  ],
+  "data_path": "/opt/airflow/data/travel_capstone/flights.csv"
+}

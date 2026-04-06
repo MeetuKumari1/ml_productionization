@@ -16,29 +16,37 @@ spec:
     spec:
       containers:
         - name: flight-price-api
-          image: your-registry/flight-price-api:latest
+          image: flight-price-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
           env:
             - name: PORT
               value: "5000"
+            - name: SKIP_TRAINING
+              value: "1"
           readinessProbe:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 30
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 60
             periodSeconds: 20
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            failureThreshold: 30
+            periodSeconds: 10
           resources:
             requests:
               cpu: "250m"
               memory: "256Mi"
             limits:
               cpu: "1000m"
-              memory: "1Gi"
+              memory: "2Gi"

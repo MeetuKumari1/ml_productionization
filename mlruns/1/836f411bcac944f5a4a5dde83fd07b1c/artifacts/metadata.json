@@ -1,0 +1,12 @@
+{
+  "model_name": "RandomForest",
+  "rmse": 0.3559235033863224,
+  "features": [
+    "from",
+    "to",
+    "flightType",
+    "agency",
+    "time",
+    "distance"
+  ]
+}
