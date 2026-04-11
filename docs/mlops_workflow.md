@@ -4,6 +4,10 @@ This document describes the workflow for each stage of the MLOps lifecycle in th
 
 > Place screenshots under `docs/images/` using the filenames listed in each section.
 
+To regenerate **all** workflow placeholder PNGs in one step (from the repo root, with dependencies installed):
+
+`python scripts/generate_doc_images.py`
+
 ## REST API
 
 **Goal:** Serve predictions for flight price and user gender models.
